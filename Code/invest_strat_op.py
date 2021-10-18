@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# import DCNN
+import DCNN
 
 
 class TradingObject:
@@ -35,14 +35,13 @@ class TradingObject:
         self.prob = prob
         self.cash = 1
         self.details_df = pd.DataFrame(columns=['Time_start', 'Price_start', 'Time_end', 'Price_end',
-                                                'Action', 'Profit','Profit_opt', #'Prob'#
-                                                'Prop', 'Time_duration'])
+                                                'Action', 'Profit','Profit_opt', 'Prop', 'Time_duration'])
     
     def update_target(self):
-        self.long_target_cut_loss = 1 - self.spread_ratio*2    # 0.996
-        self.short_target_cut_loss = 1 + self.spread_ratio*2   # 1.004
-        self.long_target = 1 + self.spread_ratio*4             # 1.008
-        self.short_target = 1 - self.spread_ratio*4            # 0.992
+        self.long_target_cut_loss = 1 - self.spread_ratio*2    
+        self.short_target_cut_loss = 1 + self.spread_ratio*2   
+        self.long_target = 1 + self.spread_ratio*4             
+        self.short_target = 1 - self.spread_ratio*4          
         self.post_inter = 20
 
     def one_step_position(self):
@@ -108,9 +107,8 @@ class TradingObject:
                  'Price_start': self.bid_price[self.starttime],
                  'Time_end': self.event_point, 'Price_end': self.ask_price[self.event_point],
                  'Action': 'short',
-                 'Profit': 1 - self.ask_price[self.event_point] / self.bid_price[self.starttime] - 0.001,
-                 'Profit_opt': (1 - self.cash)*(1-0.001) - self.shares * self.ask_price[self.event_point] * TradingObject.TC,
-                 #'Prob': self.prob[self.starttime, 0],
+                 'Profit': 2 - self.ask_price[self.event_point] / self.bid_price[self.starttime] - TradingObject.TC,
+                 'Profit_opt': 1 - self.cash - self.shares * self.ask_price[self.event_point] * TradingObject.TC,
                  'Prop': 1 - self.cash,
                  'Time_duration': self.event_point - self.starttime
                  }, ignore_index=True)
@@ -121,9 +119,8 @@ class TradingObject:
                  'Price_start': self.ask_price[self.starttime],
                  'Time_end': self.event_point, 'Price_end': self.bid_price[self.event_point],
                  'Action': 'long',
-                 'Profit': self.bid_price[self.event_point] / self.ask_price[self.starttime] - 1 - 0.001,
-                 'Profit_opt': self.shares * self.bid_price[self.event_point] - (1 - self.cash)*(1 + 0.001),
-                 #'Prob': self.prob[self.starttime, 1],
+                 'Profit': self.bid_price[self.event_point] / self.ask_price[self.starttime] - TradingObject.TC,
+                 'Profit_opt': self.shares * self.bid_price[self.event_point] * TradingObject.TC - 1 + self.cash,
                  'Prop': 1 - self.cash,
                  'Time_duration': self.event_point - self.starttime
                  }, ignore_index=True)
@@ -156,9 +153,9 @@ def signal_processing(signal_df, threshold):
     for i in range(signal_df.shape[0]):
         if max(signal_df[i, :]) > threshold:
             index = np.argmax(signal_df[i, :])
-            if index == 0: # and signal_df[i, 1] < 0.2:
-                labels.append(-1)  # downward
-            elif index == 1: # and signal_df[i, 0] < 0.2:
+            if index == 0:    # downward
+                labels.append(-1)  
+            elif index == 1:
                 labels.append(1)
             else:
                 labels.append(0)
@@ -178,11 +175,7 @@ def return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_r
     signal_nums = [0]
     tra_obj.update_target()
     if probs is not None:
-       # tra_obj.prop_para = [0.007128,-0.007995,0.006866,-0.007494]
-       # tra_obj.prop_para = [0.005449,-0.005545,0.005307,-0.005112]
-       # tra_obj.prop_para = [tra_obj.long_target-1, tra_obj.long_target_cut_loss-1, tra_obj.long_target-1,
-       #                      tra_obj.long_target_cut_loss-1]
-       tra_obj.prop_para = [0.005,-0.006,0.005,-0.006]
+        tra_obj.prop_para = [0.007128,-0.007995,0.006866,-0.007494]
 
     for tra_obj.event_point in range(50, len(bid_prices)-tra_obj.post_inter):
         if tra_obj.spread_check():
@@ -229,43 +222,21 @@ def invest_strat(ratio,periods):
     ask_prices = df[T-1:, 2]
     spread_ratios = spread_ratio
     
-    # optimize
+    # optimize with FL 
     profit_process_op, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
                                                                   None, prob)
-#    details_df.to_csv("/storage01/users/s1155133513/LOB/simulation/details_long_"+str(periods)+".csv")
-    # no optimize
+    details_df.to_csv("/storage01/users/s1155133513/LOB/simulation/details_long_"+str(periods)+".csv")
+    # no optimize with FL 
     profit_process_no, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
                                                                   None, None)
-#            
+    # no optimize with CE loss function
     prob = pd.read_csv('/lustre/project/Stat/s1155133513/simulation/test_y_lf'+str(periods)+'.csv').iloc[:,1:4].values
     labels = signal_processing(prob, 0)
     labels_continuous = signal_processing(prob, 0)                                                           
-    # no optimize with CE loss function
     profit_process_no_lf, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
                                                                      None, None)
-    
-
+ 
     df = np.concatenate((np.array(profit_process_no_lf), np.array(profit_process_no),np.array(profit_process_op)), axis=1)
-    
-#    df = pd.DataFrame(df,columns=['Acc_Profit_no_lf','Acc_Profit_no','Acc_Profit_op'])
-#    df.to_csv("/storage01/users/s1155133513/LOB/simulation/result_long.csv")
-        
-#    fig, ax = plt.subplots(figsize=(15, 8), dpi=120)
-#    ax.plot(profit_process_op, label='Op')
-#    ax.plot(profit_process_no, label ='Noop')
-#    ax.plot(profit_process_no_lf, label ='Noop_CE')
-#    ax.legend(loc='best')
-#    plt.xlabel("Time points")
-#    plt.ylabel("Accumulated profit")
-#    plt.title("Simulation 1 (Up)")
-#    plt.savefig('/storage01/users/s1155133513/LOB/simulation/figure/up_lf.png')
-#    plt.close('all')
-
-#    profit = []
-#    for i in range(len(profit_process)-1):
-#        if signal_nums[i+1] - signal_nums[i] !=0:
-#            profit.append(profit_process[i+1]-profit_process[i])
-#    pd.DataFrame(profit).to_csv('/storage01/users/s1155133513/LOB/simulation/profit_test.csv')
     return df
 
 
