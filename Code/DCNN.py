@@ -37,6 +37,7 @@ if gpus:
 np.random.seed(1)
 tf.random.set_seed(2)
 
+# labelling
 def wealth_change_true(bid_price, ask_price, spread):
     wct = []
     TC = 1  # transaction cost ratio
@@ -91,15 +92,11 @@ def get_label(data):
 def data_classification(X, Y, T):
     [N, D] = X.shape
     df = np.array(X)
-
     dY = np.array(Y)
-
     dataY = dY[T - 1:N]
-
     dataX = np.zeros((N - T + 1, T, D),dtype='float16')
     for i in range(T, N + 1):
         dataX[i - T] = df[i - T:i, :]
-
     return dataX.reshape(dataX.shape + (1,)), dataY
 
 def multi_category_focal_loss1(alpha, gamma=2.0):
@@ -162,7 +159,6 @@ def create_deeplob(T, NF, number_of_lstm):
     conv_reshape = Reshape((int(convsecond_output.shape[1]), int(convsecond_output.shape[3])))(convsecond_output)
 
     # build the last LSTM layer
-    # If GPU is not available, change CuDNNLSTM to LSTM
     conv_lstm = LSTM(number_of_lstm)(conv_reshape)
 
     # build the output layer
