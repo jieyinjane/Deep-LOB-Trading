@@ -37,7 +37,6 @@ if gpus:
 np.random.seed(1)
 tf.random.set_seed(2)
 
-
 def wealth_change_true(bid_price, ask_price, spread):
     wct = []
     TC = 1  # transaction cost ratio
@@ -81,16 +80,13 @@ def wealth_change_true(bid_price, ask_price, spread):
         wct.append(np.argmax([c_1t * int(c_1t > 1.001), c_2t * int(c_2t > 1.001), 1]))
     return wct
 
-
 def prepare_x(data):
     df1 = data[:, :40]
     return np.array(df1)
 
-
 def get_label(data):
     lob = data[:, -1]
     return lob
-
 
 def data_classification(X, Y, T):
     [N, D] = X.shape
@@ -110,12 +106,10 @@ def multi_category_focal_loss1(alpha, gamma=2.0):
     """
     focal loss for multi category of multi label problem
     Usage:
-     model.compile(loss=[multi_category_focal_loss1(alpha=[1,2,3,2], gamma=2)], metrics=["accuracy"], optimizer=adam)
+     model.compile(loss=[multi_category_focal_loss1(alpha=[[1],[2],[3],[2]], gamma=2)], metrics=["accuracy"], optimizer=adam)
     """
     epsilon = 1.e-7
     alpha = tf.constant(alpha, dtype=tf.float32)
-    #alpha = tf.constant([[1],[1],[1],[1],[1]], dtype=tf.float32)
-    #alpha = tf.constant_initializer(alpha)
     gamma = float(gamma)
     def multi_category_focal_loss1_fixed(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
@@ -137,22 +131,16 @@ def create_deeplob(T, NF, number_of_lstm):
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
     conv_first1 = Conv2D(node, (5, 1), padding='same')(conv_first1)
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
-    #conv_first1 = Conv2D(node, (4, 1), padding='same')(conv_first1)
-    #conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
     
     conv_first1 = Conv2D(node, (1, 2), strides=(1, 2))(conv_first1)
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
     conv_first1 = Conv2D(node, (5, 1), padding='same')(conv_first1)
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
-    #conv_first1 = Conv2D(node, (4, 1), padding='same')(conv_first1)
-    #conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
 
     conv_first1 = Conv2D(node, (1, 10))(conv_first1)
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
     conv_first1 = Conv2D(node, (5, 1), padding='same')(conv_first1)
     conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
-    #conv_first1 = Conv2D(node, (4, 1), padding='same')(conv_first1)
-    #conv_first1 = keras.layers.LeakyReLU(alpha=0.01)(conv_first1)
     
     node2 = 16
     # build the inception module
@@ -181,19 +169,14 @@ def create_deeplob(T, NF, number_of_lstm):
     out = Dense(3, activation='softmax')(conv_lstm)
     model = Model(inputs=input_lmd, outputs=out)
     adam = keras.optimizers.Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1)
-    # adam = keras.optimizers.Adam(lr=0.0001)
-    # model.compile(optimizer=adam, loss=[multi_category_focal_loss1(alpha=[[1],[1],[1]], gamma=2)], metrics=['accuracy'])
-    model.compile(optimizer=adam, loss=['categorical_crossentropy'], metrics=['accuracy'])
-    # print(model.summary())
+    model.compile(optimizer=adam, loss=[multi_category_focal_loss1(alpha=[[1],[1],[1]], gamma=2)], metrics=['accuracy'])
+    # model.compile(optimizer=adam, loss=['categorical_crossentropy'], metrics=['accuracy'])
     return model
 
 
 def DCNN_training(ratio,i):
-#    col = ['B1P', 'B1V', 'S1P', 'S1V', 'B2P', 'B2V', 'S2P', 'S2V', 'B3P',
-#           'B3V', 'S3P', 'S3V', 'B4P', 'B4V', 'S4P', 'S4V', 'B5P', 'B5V', 'S5P', 'S5V']
-    col = ['B1P', 'B1V', 'S1P', 'S1V', 'B2P', 'B2V','S2P', 'S2V',
-           'B3P', 'B3V', 'S3P', 'S3V', 'B4P', 'B4V', 'S4P', 'S4V', 'B5P', 'B5V', 'S5P', 'S5V','B6P', 'B6V', 'S6P', 'S6V',
-           'B7P', 'B7V', 'S7P', 'S7V','B8P', 'B8V', 'S8P', 'S8V','B9P', 'B9V', 'S9P', 'S9V','B10P', 'B10V', 'S10P', 'S10V']
+    col = ['B1P', 'B1V', 'S1P', 'S1V', 'B2P', 'B2V','S2P', 'S2V', 'B3P', 'B3V', 'S3P', 'S3V', 'B4P', 'B4V', 'S4P', 'S4V', 'B5P', 'B5V', 'S5P', 'S5V',
+           'B6P', 'B6V', 'S6P', 'S6V', 'B7P', 'B7V', 'S7P', 'S7V', 'B8P', 'B8V', 'S8P', 'S8V','B9P', 'B9V', 'S9P', 'S9V', 'B10P', 'B10V', 'S10P', 'S10V']
     df = pd.HDFStore('/lustre/project/Stat/s1155133513/simulation/test_long.h5')
     data = df['ob'].reset_index(drop=True)
     df.close()
@@ -237,10 +220,7 @@ def DCNN_training(ratio,i):
     # prepare training data. We feed past T observations into our algorithms and choose the prediction horizon.
     T = 50
     trainX_CNN, trainY_CNN = data_classification(train_lob, train_label, T)
-#    # class_weights = dict(enumerate(class_weight.compute_class_weight('balanced', np.unique(trainY_CNN), trainY_CNN)))
-#    # class_weights = {0:2, 1:2, 2:1}
-    trainY_CNN = np_utils.to_categorical(trainY_CNN, 3)  # train_label 0,1,2
-#
+    trainY_CNN = np_utils.to_categorical(trainY_CNN, 3) 
     # prepare valid and test data.
     validX_CNN, validY_CNN = data_classification(valid_lob, valid_label, T)
     validY_CNN = np_utils.to_categorical(validY_CNN, 3)
@@ -254,8 +234,7 @@ def DCNN_training(ratio,i):
     deeplob = create_deeplob(T, N-1, 32)
 
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=2, mode='auto')
-    checkpoint_filepath = './model_check/long_simul_lf2/weights'
-#    deeplob.load_weights(checkpoint_filepath)
+    checkpoint_filepath = './model_check/weights'
     model_checkpoint_callback = keras.callbacks.ModelCheckpoint(filepath=checkpoint_filepath,
                                                                 save_weights_only=True,
                                                                 monitor='val_loss',
@@ -264,20 +243,14 @@ def DCNN_training(ratio,i):
     deeplob.fit(trainX_CNN, trainY_CNN, epochs=200, batch_size=128, verbose=2, validation_data=(validX_CNN, validY_CNN),
                 callbacks=[model_checkpoint_callback, early_stopping])  #, class_weight=class_weights)
     deeplob.load_weights(checkpoint_filepath)
-#    deeplob.save('./model_save/down/my_model.h5')
-#    deeplob = load_model('./model_save/up/my_model.h5', custom_objects={'multi_category_focal_loss1_fixed': multi_category_focal_loss1})
-    
+    deeplob.save('./model_save/my_model.h5')
+      
     # evaluate the model
     predictions = deeplob.predict(testX_CNN)
     pd.DataFrame(predictions).to_csv('/lustre/project/Stat/s1155133513/simulation/test_y_lf'+str(2*i+1)+'.csv')
     results = np_utils.to_categorical(np.argmax(predictions, axis=1), 3)
     print(classification_report(testY_CNN, results, target_names=['0', '1', '2']))
     
-#    predictions = list(deeplob.predict(trainX_CNN))
-#    pd.DataFrame(predictions).to_csv('/lustre/project/Stat/s1155133513/simulation/train_valid_y_stable.csv')
-#    results = np_utils.to_categorical(np.argmax(predictions, axis=1), 3)
-#    print(classification_report(trainY_CNN, results, target_names=['0', '1', '2']))
-
     print("Evaluate")
     result = deeplob.evaluate(testX_CNN, testY_CNN,verbose=0)
     print(dict(zip(deeplob.metrics_names, result)))
@@ -289,6 +262,6 @@ def DCNN_training(ratio,i):
 
 
 if __name__ == '__main__':
-    for i in range(10):
-        ratio = 0.05*i+0.45+0.025
+    for i in range(21):
+        ratio = 0.025*i+0.45
         predictions, mp_test, spread_ratio = DCNN_training(ratio,i)
