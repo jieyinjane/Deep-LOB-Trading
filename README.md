@@ -9,7 +9,7 @@ This repository contains the datasets and codes described in the paper "...". We
 In our paper, we evaluate our system model on both simulation dataset and historical stock data of Chinese A-share markets.
 
 - The simulation dataset: We simulate three datasets with different financial environments and one dataset under a long-term and mixed period by a zero intelligence agent-based model with the [codes](https://github.com/JackBenny39/pyziabm).
-- The CS-20 dataset: [Benchmark dataset](https://github.com/HKGSAS) is publicly available and downloaded.
+- The CS-20 dataset: [Benchmark dataset](https://github.com/hkgsas/LOB) is publicly available and downloaded.
 - The proprietary dataset of CS-100: Provided by fintech company TradeMaster.
 
 **Code**
