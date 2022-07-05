@@ -2,19 +2,19 @@
 
 **Introduction**
 
-This repository contains the datasets and codes described in the paper "...". We propose a system model contains training, predicting and trading and evaluate it on the simulation data and the empirical data.
+This repository contains the datasets and codes described in the paper "Deep LOB Trading: Half a second please!". We propose a system model contains training, predicting and trading, and evaluate it on the simulation data and the empirical data.
 
 **Data**
 
-In our paper, we evaluate our system model on both simulation dataset and historical stock data of Chinese A-share markets.
+In our paper, we evaluate our system model on both simulation dataset and historical stock data of Chinese A-share market.
 
-- The simulation dataset: We simulate three datasets with different financial environments and one dataset under a long-term and mixed period by a zero intelligence agent-based model with the [codes](https://github.com/JackBenny39/pyziabm).
+- The simulation dataset: We simulate three hypothetical market sentiments (uptrend, downtrend, and flat) and one dataset under a mixture of different market sentiments by a zero intelligence agent-based model with the [codes](https://github.com/JackBenny39/pyziabm).
 - The CS-20 dataset: [Benchmark dataset](https://github.com/hkgsas/LOB) is publicly available and downloaded.
-- The proprietary dataset of CS-100: Provided by fintech company TradeMaster.
+- The proprietary dataset of CS-100: Provided by the Fintech company [TradeMaster](https://www.trademastertech.com).
 
 **Code**
 
-The codes written by Python are provided in the [fold](Code) for the simulation dataset under a long-term and mixed period.
+The codes written by Python are provided in the [fold](Code) for the simulation dataset under a mixture of different market sentiments.
 
 - DCNN.py: Labelling, training and predicting.
 - invest_strat_op.py: Trading strategy with optimization and without optimization.
