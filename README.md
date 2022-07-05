@@ -1,4 +1,4 @@
-# HFT-LOB
+# Deep LOB Trading
 
 **Introduction**
 
