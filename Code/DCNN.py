@@ -173,7 +173,7 @@ def create_deeplob(T, NF, number_of_lstm):
 def DCNN_training(ratio,i):
     col = ['B1P', 'B1V', 'S1P', 'S1V', 'B2P', 'B2V','S2P', 'S2V', 'B3P', 'B3V', 'S3P', 'S3V', 'B4P', 'B4V', 'S4P', 'S4V', 'B5P', 'B5V', 'S5P', 'S5V',
            'B6P', 'B6V', 'S6P', 'S6V', 'B7P', 'B7V', 'S7P', 'S7V', 'B8P', 'B8V', 'S8P', 'S8V','B9P', 'B9V', 'S9P', 'S9V', 'B10P', 'B10V', 'S10P', 'S10V']
-    df = pd.HDFStore('/lustre/project/Stat/s1155133513/simulation/test_long.h5')
+    df = pd.HDFStore('./simulation/test_long.h5')
     data = df['ob'].reset_index(drop=True)
     df.close()
     dimension = data.shape[0]
@@ -237,13 +237,13 @@ def DCNN_training(ratio,i):
                                                                 mode='auto',
                                                                 save_best_only=True)
     deeplob.fit(trainX_CNN, trainY_CNN, epochs=200, batch_size=128, verbose=2, validation_data=(validX_CNN, validY_CNN),
-                callbacks=[model_checkpoint_callback, early_stopping])  #, class_weight=class_weights)
+                callbacks=[model_checkpoint_callback, early_stopping])  
     deeplob.load_weights(checkpoint_filepath)
     deeplob.save('./model_save/my_model.h5')
       
     # evaluate the model
     predictions = deeplob.predict(testX_CNN)
-    pd.DataFrame(predictions).to_csv('/lustre/project/Stat/s1155133513/simulation/test_y_lf'+str(2*i+1)+'.csv')
+    pd.DataFrame(predictions).to_csv('./simulation/test_y_lf'+str(2*i+1)+'.csv')
     results = np_utils.to_categorical(np.argmax(predictions, axis=1), 3)
     print(classification_report(testY_CNN, results, target_names=['0', '1', '2']))
     
