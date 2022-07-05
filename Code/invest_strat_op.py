@@ -203,12 +203,12 @@ def return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_r
 
 def invest_strat(ratio,periods):
     # prob, df, spread_ratio = DCNN.DCNN_training()
-    df = pd.HDFStore('/lustre/project/Stat/s1155133513/simulation/test_long.h5')
+    df = pd.HDFStore('./simulation/test_long.h5')
     data = df['ob'].reset_index(drop=True)
     df.close()
     dimension = data.shape[0]
     df = data.iloc[int(dimension * (ratio+0.025)):int(dimension * (ratio+0.05)), 1:41].reset_index(drop=True).values    
-    prob = pd.read_csv('/lustre/project/Stat/s1155133513/simulation/test_y'+str(periods)+'.csv').iloc[:,1:4].values
+    prob = pd.read_csv('./simulation/test_y'+str(periods)+'.csv').iloc[:,1:4].values
     
     dec_train = data.iloc[int(dimension *(ratio-0.45)):int(dimension * ratio), 1:41].reset_index(drop=True)
     bp = dec_train.iloc[:, 0].reset_index(drop=True)
@@ -225,12 +225,12 @@ def invest_strat(ratio,periods):
     # optimize with FL 
     profit_process_op, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
                                                                   None, prob)
-    details_df.to_csv("/storage01/users/s1155133513/LOB/simulation/details_long_"+str(periods)+".csv")
+    details_df.to_csv("./simulation/details_long_"+str(periods)+".csv")
     # no optimize with FL 
     profit_process_no, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
                                                                   None, None)
     # no optimize with CE loss function
-    prob = pd.read_csv('/lustre/project/Stat/s1155133513/simulation/test_y_lf'+str(periods)+'.csv').iloc[:,1:4].values
+    prob = pd.read_csv('./simulation/test_y_lf'+str(periods)+'.csv').iloc[:,1:4].values
     labels = signal_processing(prob, 0)
     labels_continuous = signal_processing(prob, 0)                                                           
     profit_process_no_lf, signal_nums, details_df = return_calculate(bid_prices, ask_prices, labels, labels_continuous, spread_ratios,
@@ -241,10 +241,10 @@ def invest_strat(ratio,periods):
 
 
 if __name__ == '__main__':
-    results_df = pd.DataFrame(columns=['Periods', 'Acc_Profit_no_lf','N1','Acc_Profit_no','N2','Acc_Profit_op','N3'])
+    results_df = pd.DataFrame(columns=['Periods', 'Acc_Profit_no_lf', 'N1', 'Acc_Profit_no', 'N2', 'Acc_Profit_op', 'N3'])
     for i in range(21):
-        ratio = 0.025*i+0.45
+        ratio = 0.025*i + 0.45
         results = invest_strat(ratio,i)
-        results = pd.DataFrame(np.insert(results, 0, i, axis=1),columns=['Periods', 'Acc_Profit_no_lf','N1','Acc_Profit_no','N2','Acc_Profit_op','N3']) 
+        results = pd.DataFrame(np.insert(results, 0, i, axis=1),columns=['Periods', 'Acc_Profit_no_lf', 'N1', 'Acc_Profit_no', 'N2', 'Acc_Profit_op', 'N3']) 
         results_df = pd.concat([results_df, results], axis=0, ignore_index=True)
-        results_df.to_csv("/storage01/users/s1155133513/LOB/simulation/results_long.csv")    
+        results_df.to_csv("./simulation/results_long.csv")    
