@@ -17,4 +17,4 @@ In our paper, we evaluate our system model on both simulation dataset and histor
 The codes written by Python are provided in the [fold](Code) for the simulation dataset under a mixture of different market sentiments.
 
 - DCNN.py: Labelling, training and predicting.
-- invest_strat_op.py: Trading strategy with optimization and without optimization.
+- invest_strat.py: Trading strategy with and without optimization.
